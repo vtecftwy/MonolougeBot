@@ -52,7 +52,7 @@ def process_text():
 
 win=tkinter.Tk()
 win.title("SPASCK")
-win.geometry('850x600+20+20')
+win.geometry('1250x950+20+20')
 
 zmack_label=Label(win, text="ZMACK! Presents: SPASCK", font=(None, 30, 'bold'), height=2)
 zmack_label.grid(row=0,columnspan=3,column=0, sticky='w')
@@ -60,11 +60,11 @@ zmack_label.grid(row=0,columnspan=3,column=0, sticky='w')
 prompt_label=Label(win, text="What's on your mind?", font=(None, 16, 'bold'))
 prompt_label.grid(row=1,column=0, sticky='w')
 
-prompt_field=Entry(win,bd=5)
+prompt_field=Entry(win,bd=5,font=(None, 16))
 prompt_field.grid(row=1,column=1,ipadx=200,sticky='w')
 
 prompt_enter=Button(win,text='Submit',command=process_text)
-prompt_enter.grid(row=1,column=2)
+prompt_enter.grid(row=1,column=2,sticky='w')
 
 loading_label=Label(win, text="", font=(None,20, 'bold'))
 loading_label.grid(row=2,columnspan=2,column=1)
@@ -72,7 +72,7 @@ loading_label.grid(row=2,columnspan=2,column=1)
 output_label=Label(win, text="Response", font=(None, 16, 'bold'))
 output_label.grid(row=3,column=0, sticky='w')
 
-output_field=Text(win,bd=5, height=15, width=75, wrap='word')
+output_field=Text(win,bd=5, height=30, width=80, wrap='word',font=(None, 16))
 output_field.grid(row=3,columnspan=2,column=1, sticky='w')
 
 prompt_clear=Button(win,text='Clear',command=clear_prompt)
