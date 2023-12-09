@@ -110,3 +110,4 @@ config-api-keys.cfg
 
 # log files
 /logs/
+/old_files/*
