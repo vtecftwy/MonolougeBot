@@ -9,6 +9,7 @@ from tkinter import *
 from tkinter import font
 from utils import *
 
+
 print('Starting. Setting up system. This will take a while ...')
 setup_logging()
 logging.info(f"\n{'='*50}\nNew Session: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n{'='*50}")
@@ -17,7 +18,11 @@ device = "cuda:0" if torch.cuda.is_available() else "cpu"
 logthis(f"LLM will be running on {device}")
 
 logthis(f"Loading pipeline")
-generator = pipeline('text-generation', model='EleutherAI/gpt-neo-2.7B', device=device)
+p2gptneo = (ROOT / '../../models/EleutherAI-gpt-neo-2.7B').resolve()
+assert p2gptneo.is_dir()
+path_to_gpt = str(p2gptneo.absolute())
+# generator = pipeline('text-generation', model='EleutherAI/gpt-neo-2.7B', device=device)
+generator = pipeline('text-generation', model=path_to_gpt, device=device)
 # generator = pipeline('text-generation', model='PygmalionAI/pygmalion-2-7b', device=device)
 logthis(f"Loading pipeline DONE")
 

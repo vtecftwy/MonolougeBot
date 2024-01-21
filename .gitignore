@@ -108,6 +108,13 @@ ENV/
 # Confidential files (api-keys, ...)
 config-api-keys.cfg
 
-# log files
-/logs/
-/old_files/*
+
+# Folders not to track
+logs/
+models/
+old_files/
+
+# Work in progress not to track
+wip*
+*/wip*
+*/*/wip*
