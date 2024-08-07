@@ -1,6 +1,8 @@
+import time
 import torch
-from datetime import datetime
+from datetime import datetime, timedelta
 from transformers import pipeline
+import tkinter as tk
 import tkinter.messagebox
 from tkinter import filedialog as fd
 from tkinter import ttk
@@ -26,6 +28,7 @@ generator = pipeline('text-generation', model=path_to_gpt, device=device)
 # generator = pipeline('text-generation', model='PygmalionAI/pygmalion-2-7b', device=device)
 logthis(f"Loading pipeline DONE")
 
+config = get_config()
 
 @monitor_fn
 def clear_prompt():
@@ -34,6 +37,15 @@ def clear_prompt():
 @monitor_fn
 def process_text():
     global generator
+
+    print('Entering in process_text')
+    prompt_submit_dt = datetime.now()
+    monologue_delay_seconds = config['monologue-delay-seconds']
+    earliest_time_to_display_monologue = prompt_submit_dt + timedelta(seconds=monologue_delay_seconds)
+    
+    # update text field output_filed with a message
+    output_field.delete(1.0, "end")
+    output_field.insert(1.0, 'Let me think about that ...')
    
     ##### Vanilla Huggingface Transformer Text Generation #####
     logthis('   Button Pressed')
@@ -68,7 +80,13 @@ def process_text():
     logthis('   postprocessing done')
     logthis(f'   result"\n{answer}')
     
-    output_field.insert(1.0,answer)
+    while datetime.now() < earliest_time_to_display_monologue:
+        # print(str(earliest_time_to_display_monologue - datetime.now()))
+        # output_field.delete(1.0, "end")
+        # output_field.insert(1.0, str(earliest_time_to_display_monologue - datetime.now()))
+        time.sleep(1)
+    output_field.delete(1.0, "end")
+    output_field.insert(1.0, answer)
     logthis('   -------------------------------------')
 
 
@@ -97,6 +115,7 @@ output_label.grid(row=3,column=0, sticky='w')
 
 output_field=Text(win,bd=5, height=17, width=49, wrap='word',font=('terminal', 24),background='#c6f6f2')
 output_field.grid(row=3,columnspan=2,column=1, sticky='w')
+# output_field.insert(1.0, 'Response will appear here')
 
 prompt_clear=Button(win,text='Clear',font=('rog fonts', 16, 'bold'), command=clear_prompt,background='#000147',foreground='#4fe3d7',activebackground='#4fe3d7',activeforeground='#000147')
 prompt_clear.grid(row=4,columnspan=2,column=1)
