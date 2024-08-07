@@ -23,8 +23,8 @@ FILLER_TEXTS = [
     'I need to take a moment to activate my brain on this one ...',
     'I should probably consult my crystal ball on this one, give me a sec ...',
     'Please stand by while I perform advanced mental gymnastics ...',
-    "I'll be right back - my thoughts badly need a coffee break ...",
-    "Hang tight, I'm currently reinitialising my thoughts ...",
+    "I'll be right back - my thoughts badly need a break and a strong drink ...",
+    "Hang tight, I'm currently upgrading my thoughts to the latest version ...",
     ]
 texts = []
 
@@ -49,7 +49,7 @@ def process_prompt():
     
     config = get_config()
 
-    def update_monologue_field():
+    def update_progress_bar():
         """Manage progress bar and update monologue field"""
         if datetime.now() < earliest_time_to_display_monologue or not answer_ready:
 
@@ -58,7 +58,7 @@ def process_prompt():
             seconds_elapsed = config['monologue-delay-seconds'] - seconds_left
             progress = int(100 * seconds_elapsed / config['monologue-delay-seconds'])
             progress_bar['value'] = progress
-            win.after(1000, update_monologue_field)
+            win.after(1000, update_progress_bar)
         else:
             logthis("   Update monologue with answer and remove progress bar")
             monologue_field.delete(1.0, "end")
@@ -129,7 +129,7 @@ def process_prompt():
     answer_ready = False
     logthis(f"   prompt:\n{prompt}")
 
-    update_monologue_field()
+    update_progress_bar()
     logthis(f'   force GUI update before LLM call')
     win.update_idletasks()      # Force update of GUI before starting LLM call
     answer, answer_ready = get_monologue(prompt)
