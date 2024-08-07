@@ -1,7 +1,7 @@
 import time
-import torch
+# import torch
 from datetime import datetime, timedelta
-from transformers import pipeline
+# from transformers import pipeline
 import tkinter as tk
 import tkinter.messagebox
 from tkinter import filedialog as fd
@@ -16,77 +16,102 @@ print('Starting. Setting up system. This will take a while ...')
 setup_logging()
 logging.info(f"\n{'='*50}\nNew Session: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n{'='*50}")
 
-device = "cuda:0" if torch.cuda.is_available() else "cpu"
-logthis(f"LLM will be running on {device}")
+# device = "cuda:0" if torch.cuda.is_available() else "cpu"
+# logthis(f"LLM will be running on {device}")
 
-logthis(f"Loading pipeline")
-p2gptneo = (ROOT / '../../models/EleutherAI-gpt-neo-2.7B').resolve()
-assert p2gptneo.is_dir()
-path_to_gpt = str(p2gptneo.absolute())
-# generator = pipeline('text-generation', model='EleutherAI/gpt-neo-2.7B', device=device)
-generator = pipeline('text-generation', model=path_to_gpt, device=device)
-# generator = pipeline('text-generation', model='PygmalionAI/pygmalion-2-7b', device=device)
-logthis(f"Loading pipeline DONE")
+# logthis(f"Loading pipeline")
+# p2gptneo = (ROOT / '../../models/EleutherAI-gpt-neo-2.7B').resolve()
+# assert p2gptneo.is_dir()
+# path_to_gpt = str(p2gptneo.absolute())
+# generator = pipeline('text-generation', model=path_to_gpt, device=device)
+# logthis(f"Loading pipeline DONE")
 
 config = get_config()
 
 @monitor_fn
-def clear_prompt():
-    output_field.delete(1.0,"end")
+def clear_monologue():
+    monologue_field.delete(1.0,"end")
 
 @monitor_fn
-def process_text():
+def process_prompt():
     global generator
 
-    print('Entering in process_text')
-    prompt_submit_dt = datetime.now()
-    monologue_delay_seconds = config['monologue-delay-seconds']
-    earliest_time_to_display_monologue = prompt_submit_dt + timedelta(seconds=monologue_delay_seconds)
-    
-    # update text field output_filed with a message
-    output_field.delete(1.0, "end")
-    output_field.insert(1.0, 'Let me think about that ...')
-   
-    ##### Vanilla Huggingface Transformer Text Generation #####
     logthis('   Button Pressed')
+    # Get prompt
     prompt = prompt_field.get()
     logthis(f"   prompt:\n{prompt}")
-    logthis('   calling LLM')
-    result = generator(prompt, min_length=200, max_length=210, do_sample=True, temperature=0.89)
-    logthis('   LLM call done')
-    raw_result = (result[0]['generated_text'])
-    logthis(f'   result"\n{raw_result}')
-    
-    ##### Generate indexes for sentence ending punctuation #####
-    logthis('   postprocessing result')
-    period = raw_result.rfind(".") 
-    question_mark = raw_result.rfind("?")
-    exclamation_mark =  raw_result.rfind("!")
-    quotes = raw_result.rfind('"')
-    
 
-    # Function compares the 4 index values, slices the end off of the largest,returns the raw result minus the hanging sentence fragment #####
-    def trimmer(a, b, c, d):
-        if a > b and a > c and a > d:                                   
-            return raw_result[:a+1]
-        elif b > a and b > c and b > d:
-            return raw_result[:b+1]
-        elif c > a and c > b and c >d:
-            return raw_result[:c+1]
+    # Set timing and create progress bar
+    earliest_time_to_display_monologue = datetime.now() + timedelta(seconds=config['monologue-delay-seconds'])
+    progress_bar = ttk.Progressbar(win, length=1000, mode='determinate')
+    progress_bar.grid(row=4,columnspan=2,column=1)
+    progress_bar['value'] = 0
+
+    def update_monologue_field():
+        """Update monologue text, manage progress bar"""
+        if datetime.now() < earliest_time_to_display_monologue or not answer_ready:
+            # logthis("   Update monologue with filler")
+            text = f"I need to think about this ..."
+            monologue_field.delete(1.0, "end")
+            monologue_field.insert(1.0, text)
+
+            # logthis("   Update progress bar")
+            seconds_left = max(0,(earliest_time_to_display_monologue - datetime.now()).seconds)
+            seconds_elapsed = config['monologue-delay-seconds'] - seconds_left
+            progress = int(100 * seconds_elapsed / config['monologue-delay-seconds'])
+            progress_bar['value'] = progress
+            win.after(1000, update_monologue_field)
         else:
-            return raw_result[:d+1]
+            logthis("   Update monologue with answer and remove progress bar")
+            monologue_field.delete(1.0, "end")
+            monologue_field.insert(1.0, answer)
+            progress_bar.grid_forget()
+            logthis('   -------------------------------------')
 
-    answer = trimmer(period,question_mark,exclamation_mark,quotes)
-    logthis('   postprocessing done')
-    logthis(f'   result"\n{answer}')
-    
-    while datetime.now() < earliest_time_to_display_monologue:
-        # print(str(earliest_time_to_display_monologue - datetime.now()))
-        # output_field.delete(1.0, "end")
-        # output_field.insert(1.0, str(earliest_time_to_display_monologue - datetime.now()))
-        time.sleep(1)
-    output_field.delete(1.0, "end")
-    output_field.insert(1.0, answer)
+    def trimmer(string, a, b, c, d):
+        """Trim raw answer
+
+        Function compares the 4 index values, slices the end off of the largest, 
+        returns the raw result minus the hanging sentence fragment
+        """
+        if a > b and a > c and a > d:                                   
+            return string[:a+1]
+        elif b > a and b > c and b > d:
+            return string[:b+1]
+        elif c > a and c > b and c >d:
+            return string[:c+1]
+        else:
+            return string[:d+1]
+
+    def get_monologue(prompt):
+
+        # Call LLM
+        logthis('   calling LLM')  
+        # result = generator(prompt, min_length=200, max_length=210, do_sample=True, temperature=0.89)
+        # logthis('   LLM call done')
+        # raw_result = (result[0]['generated_text'])
+        raw_result = "This is the answer generated by the LLM. Do you like it? You should."
+        logthis(f'   raw result"\n{raw_result}')
+        
+        # Postprocess answer
+        logthis('   postprocessing result')
+        # Get position/index of punctuation marks (., ?, !, ")
+        period = raw_result.rfind(".") 
+        question_mark = raw_result.rfind("?")
+        exclamation_mark =  raw_result.rfind("!")
+        quotes = raw_result.rfind('"')
+
+        # Trim raw result to the appropriate punctuation mark 
+        answer = trimmer(raw_result, period,question_mark,exclamation_mark,quotes)
+        logthis('   postprocessing done')
+        logthis(f'   result"\n{answer}')
+
+        return answer, True
+
+    answer_ready = False
+    update_monologue_field()
+    answer, answer_ready = get_monologue(prompt)
+
     logthis('   -------------------------------------')
 
 
@@ -104,20 +129,16 @@ prompt_label.grid(row=1,column=0, sticky='w')
 prompt_field=Entry(win,bd=5,font=('terminal', 16),background='#c6f6f2')
 prompt_field.grid(row=1,column=1,ipadx=200,sticky='w')
 
-prompt_enter=Button(win,text='Submit',font=('rog fonts', 32),command=process_text,background='#000147',foreground='#4fe3d7',activebackground='#4fe3d7',activeforeground='#000147')
+prompt_enter=Button(win,text='Submit',font=('rog fonts', 32),command=process_prompt,background='#000147',foreground='#4fe3d7',activebackground='#4fe3d7',activeforeground='#000147')
 prompt_enter.grid(row=1,column=2,sticky='w')
 
-loading_label=Label(win, text="", font=('terminal',20, 'bold'),background='#000147',foreground='#4fe3d7')
-loading_label.grid(row=2,columnspan=2,column=1)
+monologue_label=Label(win, text="Monologue:", font=('rog fonts', 16, 'bold'),background='#000147',foreground='#4fe3d7')
+monologue_label.grid(row=3,column=0, sticky='w')
 
-output_label=Label(win, text="Response", font=('rog fonts', 16, 'bold'),background='#000147',foreground='#4fe3d7')
-output_label.grid(row=3,column=0, sticky='w')
+monologue_field=Text(win,bd=5, height=17, width=49, wrap='word',font=('terminal', 24),background='#c6f6f2')
+monologue_field.grid(row=3,columnspan=2,column=1, sticky='w')
 
-output_field=Text(win,bd=5, height=17, width=49, wrap='word',font=('terminal', 24),background='#c6f6f2')
-output_field.grid(row=3,columnspan=2,column=1, sticky='w')
-# output_field.insert(1.0, 'Response will appear here')
-
-prompt_clear=Button(win,text='Clear',font=('rog fonts', 16, 'bold'), command=clear_prompt,background='#000147',foreground='#4fe3d7',activebackground='#4fe3d7',activeforeground='#000147')
+prompt_clear=Button(win,text='Clear',font=('rog fonts', 16, 'bold'), command=clear_monologue,background='#000147',foreground='#4fe3d7',activebackground='#4fe3d7',activeforeground='#000147')
 prompt_clear.grid(row=4,columnspan=2,column=1)
 
 win.mainloop()
