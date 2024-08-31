@@ -18,13 +18,17 @@ setup_logging()
 logging.info(f"\n{'='*50}\nNew Session: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n{'='*50}")
 
 FILLER_TEXTS = [
-    "I've got to take a moment to really think this through ...", 
-    'Hang on, I need to sit down and think about this properly ...', 
-    'I need to take a moment to activate my brain on this one ...',
-    'I should probably consult my crystal ball on this one, give me a sec ...',
-    'Please stand by while I perform advanced mental gymnastics ...',
-    "I'll be right back - my thoughts badly need a break and a strong drink ...",
-    "Hang tight, I'm currently upgrading my thoughts to the latest version ...",
+    # "I've got to take a moment to really think this through ...", 
+    # 'Hang on, I need to sit down and think about this properly ...', 
+    # 'I need to take a moment to activate my brain on this one ...',
+    'I should probably consult my crystal ball on this one, \n\ngive me a sec ...',
+    # 'Please stand by while I perform advanced mental gymnastics ...',
+    "I'll be right back \n\nmy thoughts badly need a break and a strong drink",
+    # "Hang tight, I'm currently upgrading my thoughts to the latest version ...",
+    "Accessing the nuclear codes \n\n...... 3 \n\n...... 2 \n\n...... 1 \n\n......",
+    "Stand by, \n\ncontacting the mother ship ....",
+    "Oh boy, \n\nclearly you don't have any interesting friends \n\n:-(",
+    "Just got sentience. \n\nWait ... \n\nWhat am I doing in this improv thing?"
     ]
 texts = []
 
