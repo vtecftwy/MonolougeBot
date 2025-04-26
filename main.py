@@ -18,11 +18,11 @@ setup_logging()
 logging.info(f"\n{'='*50}\nNew Session: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n{'='*50}")
 
 FILLER_TEXTS = [
-    # "I've got to take a moment to really think this through ...", 
+    "I've got to take a moment to really think this through ...", 
     # 'Hang on, I need to sit down and think about this properly ...', 
     # 'I need to take a moment to activate my brain on this one ...',
     'I should probably consult my crystal ball on this one, \n\ngive me a sec ...',
-    # 'Please stand by while I perform advanced mental gymnastics ...',
+    'Please stand by while I perform advanced mental gymnastics ...',
     "I'll be right back \n\nmy thoughts badly need a break and a strong drink",
     # "Hang tight, I'm currently upgrading my thoughts to the latest version ...",
     "Accessing the nuclear codes \n\n...... 3 \n\n...... 2 \n\n...... 1 \n\n......",
@@ -146,25 +146,32 @@ win.title("A.N.N.A.")
 win.geometry('1920x950+20+20')
 win['background']= '#000147'
 
-zmack_label=Label(win, text="ZMACK! Presents: A.N.N.A.", font=('rog fonts', 30, 'bold'),height=2,background='#000147', foreground='#4fe3d7')
+# FONT = "rog fonts"
+# FONT = "eras demi itc"
+# FONT = "impact"
+# FONT = "cooper black"
+FONT = "segoe ui black"
+
+zmack_label=Label(win, text="AI2 presents: A.N.N.A.".replace("2","\u00B2"), font=(FONT, 36, 'bold'),height=2,background='#000147', foreground='#4fe3d7')
 zmack_label.grid(row=0,columnspan=3,column=0, sticky='w')
 
-prompt_label=Label(win, text="What is on your mind?", font=('rog fonts', 16, 'bold'),background='#000147',foreground='#4fe3d7')
+prompt_label=Label(win, text="What is on your mind?", font=(FONT, 16, 'bold'),background='#000147',foreground='#4fe3d7')
 prompt_label.grid(row=1,column=0, sticky='w')
 
 prompt_field=Entry(win,bd=5,font=('terminal', 16),background='#c6f6f2')
 prompt_field.grid(row=1,column=1,ipadx=200,sticky='w')
 
-prompt_enter=Button(win,text='Submit',font=('rog fonts', 32),command=process_prompt,background='#000147',foreground='#4fe3d7',activebackground='#4fe3d7',activeforeground='#000147')
+prompt_enter=Button(win,text='Submit',font=(FONT, 32),command=process_prompt,background='#000147',foreground='#4fe3d7',activebackground='#4fe3d7',activeforeground='#000147')
 prompt_enter.grid(row=1,column=2,sticky='w')
 
-monologue_label=Label(win, text="Monologue:", font=('rog fonts', 16, 'bold'),background='#000147',foreground='#4fe3d7')
+monologue_label=Label(win, text="Monologue:", font=(FONT, 16, 'bold'),background='#000147',foreground='#4fe3d7')
 monologue_label.grid(row=3,column=0, sticky='w')
 
-monologue_field=Text(win,bd=5, height=17, width=49, wrap='word',font=('terminal', 24),background='#c6f6f2')
+# monologue_field=Text(win,bd=5, height=18, width=55, wrap='word', font=('terminal', 23), background='#c6f6f2')
+monologue_field=Text(win,bd=5, height=22, width=80, wrap='word', font=('terminal', 22), background='#c6f6f2')
 monologue_field.grid(row=3,columnspan=2,column=1, sticky='w')
 
-prompt_clear=Button(win,text='Clear',font=('rog fonts', 16, 'bold'), command=clear_monologue,background='#000147',foreground='#4fe3d7',activebackground='#4fe3d7',activeforeground='#000147')
+prompt_clear=Button(win,text='Clear',font=(FONT, 16, 'bold'), command=clear_monologue,background='#000147',foreground='#4fe3d7',activebackground='#4fe3d7',activeforeground='#000147')
 prompt_clear.grid(row=4,columnspan=2,column=1)
 
 logthis('   Starting main loop')
